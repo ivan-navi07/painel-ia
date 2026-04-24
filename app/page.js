@@ -1,95 +1,137 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+"use client";
+
+import { useEffect, useState } from "react";
+import { supabase } from "../lib/supabase";
 
 export default function Home() {
-  return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="https://nextjs.org/icons/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol>
-          <li>
-            Get started by editing <code>app/page.js</code>.
-          </li>
-          <li>Save and see your changes instantly.</li>
-        </ol>
+  const [user, setUser] = useState(null);
+  const [leads, setLeads] = useState([]);
 
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
+  useEffect(() => {
+    const init = async () => {
+      const { data } = await supabase.auth.getUser();
+
+      if (!data.user) {
+        window.location.href = "/login";
+        return;
+      }
+
+      setUser(data.user);
+      buscarLeads(data.user.id);
+    };
+
+    init();
+  }, []);
+
+  const buscarLeads = async (userId) => {
+    const { data } = await supabase
+      .from("leads")
+      .select("*")
+      .eq("user_id", userId);
+
+    setLeads(data || []);
+  };
+
+  const criarLead = async () => {
+    const { data: userData } = await supabase.auth.getUser();
+
+    await supabase.from("leads").insert([
+      {
+        nome: "Novo Lead",
+        telefone: "11999999999",
+        user_id: userData.user.id,
+      },
+    ]);
+
+    buscarLeads(userData.user.id);
+  };
+
+  const sair = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
+  };
+
+  if (!user) return <p>Carregando...</p>;
+
+  return (
+    <div style={{ display: "flex", minHeight: "100vh", fontFamily: "Arial" }}>
+      
+      {/* SIDEBAR */}
+      <div
+        style={{
+          width: 220,
+          background: "#020617",
+          color: "#fff",
+          padding: 20,
+        }}
+      >
+        <img src="/logo.png" width="120" />
+        <h2 style={{ marginTop: 20 }}>Menu</h2>
+
+        <p style={{ marginTop: 20, opacity: 0.7 }}>Dashboard</p>
+        <p style={{ marginTop: 10, opacity: 0.7 }}>Leads</p>
+      </div>
+
+      {/* CONTEÚDO */}
+      <div style={{ flex: 1, background: "#0f172a", color: "#fff", padding: 20 }}>
+        
+        {/* HEADER */}
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: 20,
+          }}
+        >
+          <h1>Painel</h1>
+
+          <button
+            onClick={sair}
+            style={{
+              background: "#ef4444",
+              border: "none",
+              color: "#fff",
+              padding: "8px 16px",
+              borderRadius: 5,
+              cursor: "pointer",
+            }}
           >
-            <Image
-              className={styles.logo}
-              src="https://nextjs.org/icons/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-            className={styles.secondary}
-          >
-            Read our docs
-          </a>
+            Sair
+          </button>
         </div>
-      </main>
-      <footer className={styles.footer}>
-        <a
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
+
+        {/* BOTÃO */}
+        <button
+          onClick={criarLead}
+          style={{
+            background: "#22c55e",
+            border: "none",
+            padding: "10px 20px",
+            color: "#fff",
+            borderRadius: 6,
+            cursor: "pointer",
+            marginBottom: 20,
+          }}
         >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="https://nextjs.org/icons/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
+          + Criar Lead
+        </button>
+
+        {/* LISTA */}
+        {leads.map((lead) => (
+          <div
+            key={lead.id}
+            style={{
+              background: "#1e293b",
+              padding: 15,
+              borderRadius: 10,
+              marginBottom: 10,
+            }}
+          >
+            <strong>{lead.nome}</strong>
+            <p>{lead.telefone}</p>
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
