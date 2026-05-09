@@ -6,12 +6,20 @@ import { supabase } from "../lib/supabase";
 export default function Home() {
 
 const [user,setUser] = useState(null);
-const [leads,setLeads] = useState([]);
+
 const [empreendimentos,setEmpreendimentos] = useState([]);
 
 const [nome,setNome] = useState("");
+const [tipo,setTipo] = useState("");
 const [cidade,setCidade] = useState("");
+const [bairro,setBairro] = useState("");
+const [dormitorios,setDormitorios] = useState("");
+const [metragem,setMetragem] = useState("");
 const [preco,setPreco] = useState("");
+const [lazer,setLazer] = useState("");
+const [diferenciais,setDiferenciais] = useState("");
+const [publicoAlvo,setPublicoAlvo] = useState("");
+const [scriptIa,setScriptIa] = useState("");
 const [descricao,setDescricao] = useState("");
 
 useEffect(()=>{
@@ -21,28 +29,17 @@ useEffect(()=>{
 
 async function iniciar(){
 
- const {data} = await supabase.auth.getUser();
+const {data} = await supabase.auth.getUser();
 
- if(!data.user){
-   window.location.href="/login";
-   return;
- }
-
- setUser(data.user);
-
- buscarLeads(data.user.id);
- buscarEmpreendimentos(data.user.id);
+if(!data.user){
+ window.location.href="/login";
+ return;
 }
 
+setUser(data.user);
 
-async function buscarLeads(userId){
+buscarEmpreendimentos(data.user.id);
 
-const {data} = await supabase
-.from("leads")
-.select("*")
-.eq("user_id",userId);
-
-setLeads(data || []);
 }
 
 
@@ -55,25 +52,7 @@ const {data} = await supabase
 .order("created_at",{ascending:false});
 
 setEmpreendimentos(data || []);
-}
 
-
-
-async function criarLead(){
-
-const {data:userData} = await supabase.auth.getUser();
-
-await supabase
-.from("leads")
-.insert([
-{
-nome:"Novo Lead",
-telefone:"11999999999",
-user_id:userData.user.id
-}
-]);
-
-buscarLeads(userData.user.id);
 }
 
 
@@ -87,34 +66,56 @@ await supabase
 .insert([
 {
 nome,
+tipo,
 cidade,
+bairro,
+dormitorios,
+metragem,
 preco,
+lazer,
+diferenciais,
+publico_alvo:publicoAlvo,
+script_ia:scriptIa,
 descricao,
 user_id:userData.user.id
 }
 ]);
 
+alert("Empreendimento cadastrado");
+
 setNome("");
+setTipo("");
 setCidade("");
+setBairro("");
+setDormitorios("");
+setMetragem("");
 setPreco("");
+setLazer("");
+setDiferenciais("");
+setPublicoAlvo("");
+setScriptIa("");
 setDescricao("");
 
 buscarEmpreendimentos(userData.user.id);
 
-alert("Empreendimento cadastrado");
 }
 
 
 
 async function sair(){
+
 await supabase.auth.signOut();
+
 window.location.href="/login";
+
 }
+
 
 
 if(!user){
-return <p>Carregando...</p>
+ return <p>Carregando...</p>
 }
+
 
 
 return(
@@ -125,52 +126,64 @@ minHeight:"100vh",
 fontFamily:"Arial"
 }}>
 
+
 {/* SIDEBAR */}
 <div style={{
-width:250,
+width:260,
 background:"#020617",
-color:"#fff",
-padding:30
+padding:30,
+color:"#fff"
 }}>
 
 <img src="/logo.png" width="120"/>
 
 <h2 style={{marginTop:30}}>
-Menu
+CRM IA
 </h2>
 
-<p style={{marginTop:20}}>Dashboard</p>
-<p>Leads</p>
-<p style={{color:"#22c55e"}}>
+<div style={{marginTop:30}}>
+
+<p style={{opacity:0.7}}>Dashboard</p>
+<p style={{opacity:0.7}}>Leads</p>
+
+<p style={{
+color:"#38bdf8",
+fontWeight:"bold"
+}}>
 Empreendimentos
 </p>
 
 </div>
+
+</div>
+
 
 
 {/* CONTEUDO */}
 <div style={{
 flex:1,
 background:"#0f172a",
-color:"#fff",
-padding:30
+padding:30,
+color:"#fff"
 }}>
 
 <div style={{
 display:"flex",
-justifyContent:"space-between"
+justifyContent:"space-between",
+alignItems:"center"
 }}>
 
-<h1>Painel CRM IA</h1>
+<h1>Painel Inteligente</h1>
 
 <button
 onClick={sair}
 style={{
 background:"#ef4444",
 border:"none",
-color:"#fff",
 padding:"10px 18px",
-borderRadius:8
+borderRadius:8,
+color:"#fff",
+cursor:"pointer"
 }}
 >
 Sair
@@ -179,106 +192,93 @@ Sair
 </div>
 
 
-{/* LEADS */}
+
+{/* FORM */}
 <div style={{
 marginTop:30,
 background:"#1e293b",
-padding:20,
-borderRadius:12
+padding:25,
+borderRadius:15
 }}>
 
-<h2>Leads</h2>
+<h2>Cadastrar empreendimento</h2>
 
-<button
-onClick={criarLead}
-style={{
-background:"#22c55e",
-border:"none",
-padding:"10px 16px",
-color:"#fff",
-marginTop:10,
-borderRadius:8
-}}
->
-+ Criar Lead
-</button>
-
-{leads.map((lead)=>(
-<div
-key={lead.id}
-style={{
-marginTop:15,
-background:"#334155",
-padding:15,
-borderRadius:10
-}}
->
-<strong>{lead.nome}</strong>
-<p>{lead.telefone}</p>
-</div>
-))}
-
-</div>
-
-
-
-{/* EMPREENDIMENTOS */}
 <div style={{
-marginTop:40,
-background:"#1e293b",
-padding:20,
-borderRadius:12
+display:"grid",
+gridTemplateColumns:"1fr 1fr",
+gap:15,
+marginTop:20
 }}>
 
-<h2>Cadastrar Empreendimento</h2>
+<input placeholder="Nome empreendimento" value={nome} onChange={(e)=>setNome(e.target.value)} />
+<input placeholder="Tipo" value={tipo} onChange={(e)=>setTipo(e.target.value)} />
 
-<input
-placeholder="Nome empreendimento"
-value={nome}
-onChange={(e)=>setNome(e.target.value)}
+<input placeholder="Cidade" value={cidade} onChange={(e)=>setCidade(e.target.value)} />
+<input placeholder="Bairro" value={bairro} onChange={(e)=>setBairro(e.target.value)} />
+
+<input placeholder="Dormitórios" value={dormitorios} onChange={(e)=>setDormitorios(e.target.value)} />
+<input placeholder="Metragem" value={metragem} onChange={(e)=>setMetragem(e.target.value)} />
+
+<input placeholder="Preço" value={preco} onChange={(e)=>setPreco(e.target.value)} />
+<input placeholder="Lazer" value={lazer} onChange={(e)=>setLazer(e.target.value)} />
+
+</div>
+
+
+<textarea
+placeholder="Diferenciais"
+value={diferenciais}
+onChange={(e)=>setDiferenciais(e.target.value)}
 style={{
-display:"block",
 width:"100%",
-marginTop:15,
-padding:12
+marginTop:20,
+padding:15,
+minHeight:100
 }}
 />
 
-<input
-placeholder="Cidade"
-value={cidade}
-onChange={(e)=>setCidade(e.target.value)}
+
+<textarea
+placeholder="Público alvo"
+value={publicoAlvo}
+onChange={(e)=>setPublicoAlvo(e.target.value)}
 style={{
-display:"block",
 width:"100%",
-marginTop:15,
-padding:12
+marginTop:20,
+padding:15,
+minHeight:80
 }}
 />
 
-<input
-placeholder="Preço"
-value={preco}
-onChange={(e)=>setPreco(e.target.value)}
+
+<textarea
+placeholder="Script IA"
+value={scriptIa}
+onChange={(e)=>setScriptIa(e.target.value)}
 style={{
-display:"block",
 width:"100%",
-marginTop:15,
-padding:12
+marginTop:20,
+padding:15,
+minHeight:120,
+background:"#0f172a",
+color:"#fff",
+border:"1px solid #334155"
 }}
 />
 
-<input
+
+<textarea
 placeholder="Descrição"
 value={descricao}
 onChange={(e)=>setDescricao(e.target.value)}
 style={{
-display:"block",
 width:"100%",
-marginTop:15,
-padding:12
+marginTop:20,
+padding:15,
+minHeight:120
 }}
 />
+
 
 <button
 onClick={salvarEmpreendimento}
@@ -286,41 +286,94 @@ style={{
 marginTop:20,
 background:"#38bdf8",
 border:"none",
-padding:"12px 20px",
+padding:"14px 20px",
+borderRadius:8,
 color:"#fff",
-borderRadius:8
+fontWeight:"bold",
+cursor:"pointer"
 }}
 >
 Salvar empreendimento
 </button>
 
+</div>
 
 
-<h2 style={{marginTop:40}}>
-Empreendimentos cadastrados
-</h2>
 
+
+{/* LISTA */}
+<div style={{marginTop:40}}>
+
+<h2>Empreendimentos cadastrados</h2>
 
 {empreendimentos.map((item)=>(
 
 <div
 key={item.id}
 style={{
-marginTop:15,
-background:"#334155",
-padding:18,
-borderRadius:10
+background:"#1e293b",
+padding:20,
+borderRadius:15,
+marginTop:20
 }}
 >
-<h3>{item.nome}</h3>
-<p>{item.cidade}</p>
-<p>R$ {item.preco}</p>
-<p>{item.descricao}</p>
+
+<h2>{item.nome}</h2>
+
+<p>
+<strong>Tipo:</strong> {item.tipo}
+</p>
+
+<p>
+<strong>Cidade:</strong> {item.cidade}
+</p>
+
+<p>
+<strong>Bairro:</strong> {item.bairro}
+</p>
+
+<p>
+<strong>Dormitórios:</strong> {item.dormitorios}
+</p>
+
+<p>
+<strong>Metragem:</strong> {item.metragem}
+</p>
+
+<p>
+<strong>Preço:</strong> R$ {item.preco}
+</p>
+
+<p>
+<strong>Lazer:</strong> {item.lazer}
+</p>
+
+<p>
+<strong>Diferenciais:</strong> {item.diferenciais}
+</p>
+
+<p>
+<strong>Público alvo:</strong> {item.publico_alvo}
+</p>
+
+<div style={{
+marginTop:15,
+background:"#0f172a",
+padding:15,
+borderRadius:10
+}}>
+
+<strong>Script IA</strong>
+
+<p style={{marginTop:10}}>
+{item.script_ia}
+</p>
+
+</div>
 
 </div>
 
 ))}
-
 
 </div>
 
