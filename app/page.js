@@ -143,8 +143,19 @@ CRM IA
 
 <div style={{marginTop:30}}>
 
-<p style={{opacity:0.7}}>Dashboard</p>
-<p style={{opacity:0.7}}>Leads</p>
+<p style={{opacity:0.7}}>
+Dashboard
+</p>
+
+<p
+style={{
+opacity:0.7,
+cursor:"pointer"
+}}
+onClick={()=>window.location.href="/leads"}
+>
+Leads
+</p>
 
 <p style={{
 color:"#38bdf8",
@@ -210,17 +221,53 @@ gap:15,
 marginTop:20
 }}>
 
-<input placeholder="Nome empreendimento" value={nome} onChange={(e)=>setNome(e.target.value)} />
-<input placeholder="Tipo" value={tipo} onChange={(e)=>setTipo(e.target.value)} />
+<input
+placeholder="Nome empreendimento"
+value={nome}
+onChange={(e)=>setNome(e.target.value)}
+/>
 
-<input placeholder="Cidade" value={cidade} onChange={(e)=>setCidade(e.target.value)} />
-<input placeholder="Bairro" value={bairro} onChange={(e)=>setBairro(e.target.value)} />
+<input
+placeholder="Tipo"
+value={tipo}
+onChange={(e)=>setTipo(e.target.value)}
+/>
 
-<input placeholder="Dormitórios" value={dormitorios} onChange={(e)=>setDormitorios(e.target.value)} />
-<input placeholder="Metragem" value={metragem} onChange={(e)=>setMetragem(e.target.value)} />
+<input
+placeholder="Cidade"
+value={cidade}
+onChange={(e)=>setCidade(e.target.value)}
+/>
 
-<input placeholder="Preço" value={preco} onChange={(e)=>setPreco(e.target.value)} />
-<input placeholder="Lazer" value={lazer} onChange={(e)=>setLazer(e.target.value)} />
+<input
+placeholder="Bairro"
+value={bairro}
+onChange={(e)=>setBairro(e.target.value)}
+/>
+
+<input
+placeholder="Dormitórios"
+value={dormitorios}
+onChange={(e)=>setDormitorios(e.target.value)}
+/>
+
+<input
+placeholder="Metragem"
+value={metragem}
+onChange={(e)=>setMetragem(e.target.value)}
+/>
+
+<input
+placeholder="Preço"
+value={preco}
+onChange={(e)=>setPreco(e.target.value)}
+/>
+
+<input
+placeholder="Lazer"
+value={lazer}
+onChange={(e)=>setLazer(e.target.value)}
+/>
 
 </div>
 
