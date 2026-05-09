@@ -1,9 +1,12 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 import { supabase } from "../lib/supabase";
 
 export default function Home() {
+
+const router = useRouter();
 
 const [user,setUser] = useState(null);
 
@@ -32,7 +35,7 @@ async function iniciar(){
 const {data} = await supabase.auth.getUser();
 
 if(!data.user){
- window.location.href="/login";
+ router.push("/login");
  return;
 }
 
@@ -106,7 +109,7 @@ async function sair(){
 
 await supabase.auth.signOut();
 
-window.location.href="/login";
+router.push("/login");
 
 }
 
@@ -152,15 +155,18 @@ style={{
 opacity:0.7,
 cursor:"pointer"
 }}
-onClick={()=>window.location.href="/leads"}
+onClick={() => router.push("/leads")}
 >
 Leads
 </p>
 
 <p style={{
 color:"#38bdf8",
-fontWeight:"bold"
-}}>
+fontWeight:"bold",
+cursor:"pointer"
+}}
+onClick={() => router.push("/")}
+>
 Empreendimentos
 </p>
 
